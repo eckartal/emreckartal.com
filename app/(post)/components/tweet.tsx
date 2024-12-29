@@ -1,66 +1,66 @@
-import { type ReactNode, Suspense } from "react";
-import { type Tweet as TweetType, getTweet } from "react-tweet/api";
-import {
-  EmbeddedTweet,
-  TweetNotFound,
-  TweetSkeleton,
-} from "react-tweet";
-import redis from "@/app/redis";
-import { Caption } from "./caption";
-import "./tweet.css";
+/* generic resets so that we inherit from the parent */
+.tweet .react-tweet-theme {
+  /* margin is handled by our wrappers */
+  --tweet-container-margin: 0;
+  --tweet-font-family: inherit;
+  --tweet-font-color: inherit;
 
-interface TweetArgs {
-  id: string;
-  caption: ReactNode;
-}
+  /* light colors override */
+  --tweet-bg-color-hover: --tweet-bg-color;
+  --tweet-color-blue-secondary: theme("colors.gray.600");
+  --tweet-color-blue-secondary-hover: theme("colors.gray.100");
+  --tweet-font-color-secondary: theme("colors.gray.500");
 
-async function getAndCacheTweet(id: string): Promise<TweetType | undefined> {
-  // we first prioritize getting a fresh tweet
-  try {
-    const tweet = await getTweet(id);
-
-    // @ts-ignore
-    if (tweet && !tweet.tombstone) {
-      // we populate the cache if we have a fresh tweet
-      await redis.set(`tweet:${id}`, tweet);
-      return tweet;
-    }
-  } catch (error) {
-    console.error("tweet fetch error", error);
-  }
-
-  const cachedTweet: TweetType | null = await redis.get(`tweet:${id}`);
-
-  // @ts-ignore
-  if (!cachedTweet || cachedTweet.tombstone) return undefined;
-
-  return cachedTweet;
-}
-
-const TweetContent = async ({ id, components }: TweetProps) => {
-  const tweet = id ? await getAndCacheTweet(id) : undefined;
-
-  if (!tweet) {
-    return <TweetNotFound />;
-  }
-
-  return <EmbeddedTweet tweet={tweet} components={components} />;
-};
-
-export const ReactTweet = (props: TweetProps) => (
-  <Suspense fallback={<TweetSkeleton />}>
-    {/* @ts-ignore: Async components are valid in the app directory */}
-    <TweetContent {...props} />
-  </Suspense>
-);
-
-export async function Tweet({ id, caption }: TweetArgs) {
-  return (
-    <div className="tweet my-6">
-      <div className={`flex justify-center`}>
-        <ReactTweet id={id} />
-      </div>
-      {caption && <Caption>{caption}</Caption>}
-    </div>
+  /* these are all default, but we reset them so they don't get
+   * overriden by the media(prefers-color-scheme: dark) selector
+   * which forces the tweet to be dark even though we allow the
+   * user to force-select a light theme */
+  --tweet-bg-color: #fff;
+  --tweet-quoted-bg-color-hover: rgba(0, 0, 0, 0.03);
+  --tweet-border: 1px solid rgb(207, 217, 222);
+  --tweet-skeleton-gradient: linear-gradient(
+    270deg,
+    #fafafa,
+    #eaeaea,
+    #eaeaea,
+    #fafafa
   );
+  --tweet-color-red-primary: rgb(249, 24, 128);
+  --tweet-color-red-primary-hover: rgba(249, 24, 128, 0.1);
+  --tweet-color-green-primary: rgb(0, 186, 124);
+  --tweet-color-green-primary-hover: rgba(0, 186, 124, 0.1);
+  --tweet-twitter-icon-color: var(--tweet-font-color);
+  --tweet-verified-old-color: rgb(130, 154, 171);
+  --tweet-verified-blue-color: var(--tweet-color-blue-primary);
+}
+
+.dark .tweet .react-tweet-theme {
+  --tweet-bg-color: #222;
+  --tweet-bg-color-hover: #222;
+  --tweet-quoted-bg-color-hover: rgba(255, 255, 255, 0.03);
+  --tweet-border: 1px solid #333;
+  --tweet-color-blue-secondary: theme("colors.white");
+  --tweet-color-blue-secondary-hover: #333;
+  --tweet-font-color-secondary: theme("colors.gray.400");
+}
+
+.tweet .react-tweet-theme p {
+  font-size: inherit;
+  line-height: 1.3rem;
+}
+
+.tweet .react-tweet-theme p a {
+  /* TODO: figure out a way to reuse this with `a.tsx` so that we are
+   * not repeating stuff that we'll have to manually keep in sync */
+  @apply border-b transition-[border-color] border-gray-300 hover:border-gray-600;
+}
+
+.dark .tweet .react-tweet-theme p a {
+  /* TODO: figure out a way to reuse this with `a.tsx` so that we are
+   * not repeating stuff that we'll have to manually keep in sync */
+  @apply text-white border-gray-500 hover:border-white;
+}
+
+.tweet .react-tweet-theme p a:hover {
+  text-decoration: none;
 }
