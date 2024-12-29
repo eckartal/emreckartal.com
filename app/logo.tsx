@@ -5,6 +5,7 @@ import Link from "next/link";
 export function Logo() {
   return (
     <h1 className="font-bold text-2xl mb-0 grow">
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <Link href="/" className="text-black dark:text-white no-underline">
         Emre Can Kartal
       </Link>
