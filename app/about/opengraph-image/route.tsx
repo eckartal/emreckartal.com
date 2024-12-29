@@ -1,5 +1,4 @@
 export const revalidate = 60;
-export const runtime = 'edge'
 
 import { ImageResponse } from "next/og";
 import { getPosts } from "@/app/get-posts";
@@ -100,10 +99,10 @@ export async function GET() {
 function font(fontFamily: string) {
   return { fontFamily };
 }
-
 function toArrayBuffer(buffer) {
   return buffer.buffer.slice(
     buffer.byteOffset,
     buffer.byteOffset + buffer.byteLength
   );
 }
+
