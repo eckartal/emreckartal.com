@@ -1,10 +1,11 @@
 import { type ReactNode, Suspense } from "react";
-import { Tweet, getTweet } from "react-tweet/api";
+import type { Tweet } from "react-tweet/api";
+import { getTweet } from "react-tweet/api";
+import type { TweetProps } from "react-tweet";
 import {
   EmbeddedTweet,
   TweetNotFound,
   TweetSkeleton,
-  type TweetProps,
 } from "react-tweet";
 import redis from "@/app/redis";
 import { Caption } from "./caption";
