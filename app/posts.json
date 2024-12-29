@@ -1,0 +1,10 @@
+{
+  "posts": [
+    {
+      "id": "hey",
+      "date": "2024-01-01",
+      "title": "hey!",
+      "category": "life"
+    }
+  ]
+}
