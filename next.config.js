@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    // Warning: Bu seçenek tüm ESLint kontrollerini devre dışı bırakır
+    // Warning: Bu seçenek production build sırasında ESLint hatalarını görmezden gelir
     ignoreDuringBuilds: true,
-  },
+  }
 }
 
 module.exports = nextConfig
