@@ -1,36 +1,42 @@
-import React from "react";
+export const revalidate = 60;
+
 import { ImageResponse } from "next/og";
-import { getPosts } from "@/lib/get-posts";
+import { getPosts } from "@/app/get-posts";
 import { readFileSync } from "fs";
 import { join } from "path";
 
-export const revalidate = 60;
-
 export async function generateStaticParams() {
-  return (await getPosts()).map((post) => ({ id: post.id }));
+  return (await getPosts()).map(post => ({ id: post.id }));
 }
 
-// Fonts
+// fonts
 const fontsDir = join(process.cwd(), "fonts");
 
-const inter300 = readFileSync(join(fontsDir, "inter-latin-300-normal.woff"));
-const inter500 = readFileSync(join(fontsDir, "inter-latin-500-normal.woff"));
-const inter600 = readFileSync(join(fontsDir, "inter-latin-600-normal.woff"));
-const robotoMono400 = readFileSync(join(fontsDir, "roboto-mono-latin-400-normal.woff"));
+const inter300 = readFileSync(
+  join(fontsDir, "inter-latin-300-normal.woff")
+);
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
+const inter500 = readFileSync(
+  join(fontsDir, "inter-latin-500-normal.woff")
+);
 
-  if (!id) {
-    return new Response("Bad Request", { status: 400 });
-  }
+const inter600 = readFileSync(
+  join(fontsDir, "inter-latin-600-normal.woff")
+);
+
+const robotoMono400 = readFileSync(
+  join(fontsDir, "roboto-mono-latin-400-normal.woff")
+);
+
+export async function GET(_req: Request, props) {
+  const params = await props.params;
+
+  const { id } = params;
 
   const posts = await getPosts();
-  const post = posts.find((p) => p.id === id);
-
+  const post = posts.find(p => p.id === id);
   if (!post) {
-    return new Response("Not Found", { status: 404 });
+    return new Response("Not found", { status: 404 });
   }
 
   return new ImageResponse(
@@ -41,10 +47,10 @@ export async function GET(req: Request) {
       >
         <header tw="flex text-[36px] w-full">
           <div tw="font-bold" style={font("Inter 600")}>
-            Emre Can Kartal
+            Guillermo Rauch
           </div>
           <div tw="grow" />
-          <div tw="text-[28px]">emreckartal.com</div>
+          <div tw="text-[28px]">rauchg.com</div>
         </header>
 
         <main tw="flex grow pb-3 flex-col items-center justify-center">
@@ -70,16 +76,28 @@ export async function GET(req: Request) {
       width: 1200,
       height: 630,
       fonts: [
-        { name: "Inter 300", data: inter300 },
-        { name: "Inter 500", data: inter500 },
-        { name: "Inter 600", data: inter600 },
-        { name: "Roboto Mono 400", data: robotoMono400 },
+        {
+          name: "Inter 300",
+          data: inter300,
+        },
+        {
+          name: "Inter 500",
+          data: inter500,
+        },
+        {
+          name: "Inter 600",
+          data: inter600,
+        },
+        {
+          name: "Roboto Mono 400",
+          data: robotoMono400,
+        },
       ],
     }
   );
 }
 
-// Helper function for styles
+// lil helper for more succinct styles
 function font(fontFamily: string) {
   return { fontFamily };
 }
