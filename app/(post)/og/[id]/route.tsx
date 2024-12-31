@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { ImageResponse } from "next/og";
 import { getPosts } from "@/lib/get-posts";
 import { readFileSync } from "fs";
@@ -29,15 +29,18 @@ const robotoMono400 = readFileSync(
   join(fontsDir, "roboto-mono-latin-400-normal.woff")
 );
 
-export async function GET(_req: Request, props) {
-  const params = await props.params;
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get("id");
 
-  const { id } = params;
+  if (!id) {
+    return new Response("Bad Request", { status: 400 });
+  }
 
   const posts = await getPosts();
   const post = posts.find(p => p.id === id);
   if (!post) {
-    return new Response("Not found", { status: 404 });
+    return new Response("Not Found", { status: 404 });
   }
 
   return new ImageResponse(
@@ -76,29 +79,4 @@ export async function GET(_req: Request, props) {
     {
       width: 1200,
       height: 630,
-      fonts: [
-        {
-          name: "Inter 300",
-          data: inter300,
-        },
-        {
-          name: "Inter 500",
-          data: inter500,
-        },
-        {
-          name: "Inter 600",
-          data: inter600,
-        },
-        {
-          name: "Roboto Mono 400",
-          data: robotoMono400,
-        },
-      ],
-    }
-  );
-}
-
-// lil helper for more succinct styles
-function font(fontFamily: string) {
-  return { fontFamily };
-}
+      fonts:
