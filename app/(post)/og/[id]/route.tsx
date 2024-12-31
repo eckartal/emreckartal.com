@@ -1,9 +1,10 @@
-export const revalidate = 60;
-
+import React from 'react';
 import { ImageResponse } from "next/og";
-import { getPosts } from "@/app/get-posts";
+import { getPosts } from "@/lib/get-posts";
 import { readFileSync } from "fs";
 import { join } from "path";
+
+export const revalidate = 60;
 
 export async function generateStaticParams() {
   return (await getPosts()).map(post => ({ id: post.id }));
