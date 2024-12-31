@@ -1,22 +1,15 @@
-import { format } from 'date-fns';
+import { Header } from "./header";
+import { getPosts } from "../get-posts";
 
-export default function PostLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: { date: string };
-}) {
-  const date = new Date();
-  const formattedDate = format(date, 'd MMMM yyyy');
+export const revalidate = 60;
+
+export default async function Layout({ children }) {
+  const posts = await getPosts();
 
   return (
-    <article className="prose dark:prose-invert">
-      <div className="mb-8 text-sm text-gray-500">
-        <span>@eckartal</span>
-        <span className="mx-2 text-gray-300 dark:text-gray-600">|</span>
-        <time dateTime={format(date, 'yyyy-MM-dd')}>{formattedDate}</time>
-      </div>
+    <article className="text-gray-800 dark:text-gray-300 mb-10">
+      <Header posts={posts} />
+
       {children}
     </article>
   );

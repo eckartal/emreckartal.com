@@ -7,8 +7,8 @@ import { join } from "path";
 import commaNumber from "comma-number";
 
 // Image
-const profilePhoto = toArrayBuffer(
-  readFileSync(join(process.cwd(), "public/images/emreckartal.png"))
+const rauchgPhoto = toArrayBuffer(
+  readFileSync(join(process.cwd(), "public/images/emreckartal.gray.png"))
 );
 
 // Fonts
@@ -42,25 +42,27 @@ export async function GET() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 tw="rounded-full h-74"
-                alt="Emre Can Kartal"
+                alt="Guillermo Rauch"
                 // @ts-ignore
-                src={profilePhoto}
+                src={rauchgPhoto}
               />
             </div>
 
             <div tw="flex flex-col px-10 grow text-[28px] h-70 justify-center">
               <div tw="text-[64px] mb-7" style={font("Inter 500")}>
-                Emre Can Kartal
+                Guillermo Rauch
               </div>
               <div tw="flex mb-5" style={font("Roboto Mono 400")}>
-                <span tw="text-gray-400 mr-3">&mdash;</span> Software Engineer
+                <span tw="text-gray-400 mr-3">&mdash;</span> CEO and Founder of
+                Vercel
               </div>
               <div tw="flex mb-5" style={font("Roboto Mono 400")}>
-                <span tw="text-gray-400 mr-3">&mdash;</span> Web Development
-                Specialist
+                <span tw="text-gray-400 mr-3">&mdash;</span> Creator of Next.js,
+                Socket.IO, Mongoose
               </div>
               <div tw="flex" style={font("Roboto Mono 400")}>
-                <span tw="text-gray-400 mr-3">&mdash;</span> Based in Turkey
+                <span tw="text-gray-400 mr-3">&mdash;</span> Lives in San
+                Francisco, CA
               </div>
             </div>
           </div>
@@ -99,10 +101,10 @@ export async function GET() {
 function font(fontFamily: string) {
   return { fontFamily };
 }
+
 function toArrayBuffer(buffer) {
   return buffer.buffer.slice(
     buffer.byteOffset,
     buffer.byteOffset + buffer.byteLength
   );
 }
-

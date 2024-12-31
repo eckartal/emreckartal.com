@@ -11,16 +11,10 @@ const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export function Posts({ posts: initialPosts }) {
   const [sort, setSort] = useState<SortSetting>(["date", "desc"]);
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const { data: posts } = useSWR("/api/posts", fetcher, {
     fallbackData: initialPosts,
     refreshInterval: 5000,
   });
-
-  const filteredPosts = useMemo(() => {
-    if (!categoryFilter) return posts;
-    return posts.filter(post => post.category === categoryFilter);
-  }, [posts, categoryFilter]);
 
   function sortDate() {
     setSort(sort => [
@@ -39,38 +33,6 @@ export function Posts({ posts: initialPosts }) {
   return (
     <Suspense fallback={null}>
       <main className="max-w-2xl font-mono m-auto mb-10 text-sm">
-        <div className="flex gap-2 mb-4 text-xs">
-          <button
-            onClick={() => setCategoryFilter(null)}
-            className={`px-2 py-1 rounded ${!categoryFilter ? 'bg-gray-200 dark:bg-gray-800' : ''}`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setCategoryFilter('life')}
-            className={`px-2 py-1 rounded ${categoryFilter === 'life' ? 'bg-gray-200 dark:bg-gray-800' : ''}`}
-          >
-            Life
-          </button>
-          <button
-            onClick={() => setCategoryFilter('product')}
-            className={`px-2 py-1 rounded ${categoryFilter === 'product' ? 'bg-gray-200 dark:bg-gray-800' : ''}`}
-          >
-            Product
-          </button>
-          <button
-            onClick={() => setCategoryFilter('lists')}
-            className={`px-2 py-1 rounded ${categoryFilter === 'lists' ? 'bg-gray-200 dark:bg-gray-800' : ''}`}
-          >
-            Lists
-          </button>
-          <button
-            onClick={() => setCategoryFilter('art')}
-            className={`px-2 py-1 rounded ${categoryFilter === 'art' ? 'bg-gray-200 dark:bg-gray-800' : ''}`}
-          >
-            Art
-          </button>
-        </div>
         <header className="text-gray-500 dark:text-gray-600 flex items-center text-xs">
           <button
             onClick={sortDate}
@@ -101,7 +63,7 @@ export function Posts({ posts: initialPosts }) {
           </button>
         </header>
 
-        <List posts={filteredPosts} sort={sort} />
+        <List posts={posts} sort={sort} />
       </main>
     </Suspense>
   );
