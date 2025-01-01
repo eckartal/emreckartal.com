@@ -17,7 +17,7 @@ export function ClientLayout({
 }) {
   return (
     <MDXProvider components={components}>
-      <div className="max-w-4xl mx-auto px-4 pb-28 pt-24 sm:px-6 md:px-8">
+      <div className="max-w-4xl mx-auto px-4 pb-28 pt-1 sm:px-6 md:px-8">
         <Header posts={posts} />
         {children}
       </div>

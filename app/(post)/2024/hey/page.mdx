@@ -1,10 +1,11 @@
 export const metadata = {
   title: 'hey!',
-  description: 'Welcome to my blog',
+  date: '2024-01-01',
   category: 'life',
   openGraph: {
     title: 'hey!',
     description: 'Welcome to my blog',
+    date: '2024-01-01',
     images: [{ url: '/og/hey' }]
   }
 }
@@ -16,6 +17,8 @@ export default function Page({ children }) {
     </article>
   );
 }
+
+![hey](/og/hey.jpg)
 
 > We are what we pretend to be, so we must be careful about what we pretend to be. - Kurt Vonnegut
 

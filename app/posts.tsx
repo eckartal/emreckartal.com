@@ -6,15 +6,34 @@ import { Suspense } from "react";
 import useSWR from "swr";
 
 type SortSetting = ["date" | "views", "desc" | "asc"];
+const CATEGORIES = ["all", "life", "product", "personal"] as const;
+type Category = typeof CATEGORIES[number];
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export function Posts({ posts: initialPosts }) {
   const [sort, setSort] = useState<SortSetting>(["date", "desc"]);
+  const [selectedCategory, setSelectedCategory] = useState<Category>("all");
   const { data: posts } = useSWR("/api/posts", fetcher, {
     fallbackData: initialPosts,
     refreshInterval: 5000,
   });
+
+  const filteredAndSortedPosts = useMemo(() => {
+    let filtered = posts;
+    if (selectedCategory !== "all") {
+      filtered = posts.filter(post => post.category === selectedCategory);
+    }
+    return [...filtered].sort((a, b) => {
+      if (sort[0] === "date") {
+        return sort[1] === "desc"
+          ? new Date(b.date).getTime() - new Date(a.date).getTime()
+          : new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else {
+        return sort[1] === "desc" ? b.views - a.views : a.views - b.views;
+      }
+    });
+  }, [posts, sort, selectedCategory]);
 
   function sortDate() {
     setSort(sort => [
@@ -33,101 +52,84 @@ export function Posts({ posts: initialPosts }) {
   return (
     <Suspense fallback={null}>
       <main className="max-w-2xl font-mono m-auto mb-10 text-sm">
-        <header className="text-gray-500 dark:text-gray-600 flex items-center text-xs">
-          <button
-            onClick={sortDate}
-            className={`w-12 h-9 text-left  ${
-              sort[0] === "date" && sort[1] !== "desc"
-                ? "text-gray-700 dark:text-gray-400"
-                : ""
-            }`}
-          >
-            date
-            {sort[0] === "date" && sort[1] === "asc" && "↑"}
-          </button>
-          <span className="grow pl-2">title</span>
-          <button
-            onClick={sortViews}
-            className={`
-                  h-9
-                  pl-4
-                  ${
-                    sort[0] === "views"
-                      ? "text-gray-700 dark:text-gray-400"
-                      : ""
-                  }
-                `}
-          >
-            views
-            {sort[0] === "views" ? (sort[1] === "asc" ? "↑" : "↓") : ""}
-          </button>
-        </header>
+        <div className="mb-4 flex gap-2">
+          {CATEGORIES.map(category => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-3 py-1 rounded-full text-xs transition-colors ${
+                selectedCategory === category
+                  ? "bg-gray-200 dark:bg-gray-800"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-900"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
 
-        <List posts={posts} sort={sort} />
+        <div className="border-b border-gray-200 dark:border-[#313131]">
+          <div className="flex items-center text-xs text-gray-500 dark:text-gray-600 h-9">
+            <div className="w-14">
+              <button
+                onClick={sortDate}
+                className={`text-left ${
+                  sort[0] === "date" && sort[1] !== "desc"
+                    ? "text-gray-700 dark:text-gray-400"
+                    : ""
+                }`}
+              >
+                date
+                {sort[0] === "date" && sort[1] === "asc" && "↑"}
+              </button>
+            </div>
+            <div className="w-16 ml-4">category</div>
+            <div className="grow ml-4">title</div>
+            <div className="w-12 text-right">
+              <button
+                onClick={sortViews}
+                className={sort[0] === "views" ? "text-gray-700 dark:text-gray-400" : ""}
+              >
+                views
+                {sort[0] === "views" ? (sort[1] === "asc" ? "↑" : "↓") : ""}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <ul className="divide-y divide-gray-200 dark:divide-[#313131]">
+          {filteredAndSortedPosts.map(post => (
+            <li key={post.id} className="group hover:bg-gray-100 dark:hover:bg-[#242424]">
+              <div className="flex items-center py-3">
+                <div className="w-14 text-gray-500">
+                  {post.date.split('-')[0]}
+                </div>
+                <div className="w-16 ml-4 text-gray-500">
+                  <button
+                    onClick={() => setSelectedCategory(post.category as Category)}
+                    className="hover:text-gray-800 dark:hover:text-gray-400"
+                  >
+                    {post.category}
+                  </button>
+                </div>
+                <Link
+                  href={`/${new Date(post.date).getFullYear()}/${post.id}`}
+                  className="grow ml-4 text-gray-800 dark:text-gray-300 hover:underline"
+                >
+                  {post.title}
+                </Link>
+                <div className="w-12 text-right text-gray-500 tabular-nums ml-4">
+                  {post.views}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       </main>
     </Suspense>
   );
 }
 
-function List({ posts, sort }) {
-  // sort can be ["date", "desc"] or ["views", "desc"] for example
-  const sortedPosts = useMemo(() => {
-    const [sortKey, sortDirection] = sort;
-    return [...posts].sort((a, b) => {
-      if (sortKey === "date") {
-        return sortDirection === "desc"
-          ? new Date(b.date).getTime() - new Date(a.date).getTime()
-          : new Date(a.date).getTime() - new Date(b.date).getTime();
-      } else {
-        return sortDirection === "desc" ? b.views - a.views : a.views - b.views;
-      }
-    });
-  }, [posts, sort]);
-
-  return (
-    <ul>
-      {sortedPosts.map((post, i: number) => {
-        const year = getYear(post.date);
-        const firstOfYear =
-          !sortedPosts[i - 1] || getYear(sortedPosts[i - 1].date) !== year;
-        const lastOfYear =
-          !sortedPosts[i + 1] || getYear(sortedPosts[i + 1].date) !== year;
-
-        return (
-          <li key={post.id}>
-            <Link href={`/${new Date(post.date).getFullYear()}/${post.id}`}>
-              <span
-                className={`flex transition-[background-color] hover:bg-gray-100 dark:hover:bg-[#242424] active:bg-gray-200 dark:active:bg-[#222] border-y border-gray-200 dark:border-[#313131]
-                ${!firstOfYear ? "border-t-0" : ""}
-                ${lastOfYear ? "border-b-0" : ""}
-              `}
-              >
-                <span
-                  className={`py-3 flex grow items-center ${
-                    !firstOfYear ? "ml-14" : ""
-                  }`}
-                >
-                  {firstOfYear && (
-                    <span className="w-14 inline-block self-start shrink-0 text-gray-500 dark:text-gray-500">
-                      {year}
-                    </span>
-                  )}
-
-                  <span className="grow dark:text-gray-100">{post.title}</span>
-
-                  <span className="text-gray-500 dark:text-gray-500 text-xs">
-                    {post.viewsFormatted}
-                  </span>
-                </span>
-              </span>
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
 function getYear(date: string) {
-  return new Date(date).getFullYear();
+  return date.split("-")[0];
 }

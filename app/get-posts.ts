@@ -9,13 +9,26 @@ export type Post = {
 };
 
 export const getPosts = async () => {
-  // Temporarily return posts without views
-  const posts = postsData.posts.map((post): Post => {
-    return {
+  try {
+    // Get view counts for all posts
+    const viewsRes = await fetch('/api/view', { next: { revalidate: 60 } });
+    const views = await viewsRes.json();
+
+    const posts = postsData.posts.map((post): Post => {
+      const viewCount = views[post.id] || 0;
+      return {
+        ...post,
+        views: viewCount,
+        viewsFormatted: new Intl.NumberFormat('en-US').format(viewCount),
+      };
+    });
+    return posts;
+  } catch (error) {
+    // Return posts without views if API call fails
+    return postsData.posts.map((post): Post => ({
       ...post,
       views: 0,
-      viewsFormatted: "0",
-    };
-  });
-  return posts;
+      viewsFormatted: '0',
+    }));
+  }
 };
