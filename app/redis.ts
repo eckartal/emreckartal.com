@@ -1,19 +1,10 @@
-import { Redis } from "@upstash/redis";
+import Redis from "ioredis";
 
-let redis;
+const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-if (!process.env.UPSTASH_REDIS_REST_TOKEN) {
-  console.warn('UPSTASH_REDIS_REST_TOKEN not found, using mock Redis');
-  redis = {
-    get: async () => null,
-    set: async () => null,
-    incr: async () => 1,
-  };
-} else {
-  redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL || "",
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
-}
-
-export default redis;
+export const redisClient = redisToken
+  ? new Redis(redisToken)
+  : {
+      // Mock implementation for build-time
+      hgetall: async () => ({}),
+    };
