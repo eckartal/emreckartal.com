@@ -19,11 +19,23 @@ export function Posts({ posts: initialPosts }) {
     refreshInterval: 5000,
   });
 
+  const { data: viewCounts } = useSWR("/api/view", fetcher, {
+    refreshInterval: 5000,
+  });
+
   const filteredAndSortedPosts = useMemo(() => {
     let filtered = posts;
     if (selectedCategory !== "all") {
       filtered = posts.filter(post => post.category === selectedCategory);
     }
+
+    if (viewCounts) {
+      filtered = filtered.map(post => ({
+        ...post,
+        views: viewCounts[post.id] || post.views || 0
+      }));
+    }
+
     return [...filtered].sort((a, b) => {
       if (sort[0] === "date") {
         return sort[1] === "desc"
@@ -33,7 +45,7 @@ export function Posts({ posts: initialPosts }) {
         return sort[1] === "desc" ? b.views - a.views : a.views - b.views;
       }
     });
-  }, [posts, sort, selectedCategory]);
+  }, [posts, sort, selectedCategory, viewCounts]);
 
   function sortDate() {
     setSort(sort => [
