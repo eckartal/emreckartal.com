@@ -1,13 +1,9 @@
 import { ImageResponse } from "next/og";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { NextRequest } from "next/server";
 
-// Define the correct type for the props parameter
-interface Props {
-  params: {
-    slug: string;
-  };
-}
+export const runtime = 'edge';
 
 // fonts
 const fontsDir = join(process.cwd(), "fonts");
@@ -29,10 +25,10 @@ const robotoMono400 = readFileSync(
 );
 
 export async function GET(
-  request: Request,
-  { params }: Props
+  request: NextRequest,
+  context: { params: { slug: string } }
 ) {
-  const { slug } = params;
+  const { slug } = context.params;
 
   return new ImageResponse(
     (
