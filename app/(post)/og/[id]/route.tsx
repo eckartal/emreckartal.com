@@ -3,10 +3,6 @@ import { getPosts } from "@/app/get-posts";
 
 export const runtime = 'edge';
 
-export async function generateStaticParams() {
-  return (await getPosts()).map(post => ({ id: post.id }));
-}
-
 // Font files need to be fetched from a URL
 const interRegular = fetch(
   new URL('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2')
