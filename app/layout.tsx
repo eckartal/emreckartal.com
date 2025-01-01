@@ -10,10 +10,10 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Emre Can Kartal",
-  description: "Builder, marketer, learner. I'm passionate about finding patterns in humans' relationships with software, AI, and various aspects of life.",
+  description: "Builder, marketer, learner. I&apos;m passionate about finding patterns in humans&apos; relationships with software, AI, and various aspects of life.",
   openGraph: {
     title: "Emre Can Kartal",
-    description: "I'm passionate about finding patterns in humans' relationships with software, AI, and various aspects of life.",
+    description: "I&apos;m passionate about finding patterns in humans&apos; relationships with software, AI, and various aspects of life.",
     url: "https://emreckartal.com",
     siteName: "Emre Can Kartal",
     images: ["/opengraph-image"],
