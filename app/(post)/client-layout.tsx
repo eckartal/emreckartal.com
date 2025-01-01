@@ -61,7 +61,7 @@ export function ClientLayout({
     }
   }, [postId]);
 
-  const viewCount = viewCounts?.[postId] || 0;
+  const viewCount = postId && viewCounts ? viewCounts[postId] || 0 : 0;
   const formattedViews = new Intl.NumberFormat('en-US').format(viewCount);
 
   return (
