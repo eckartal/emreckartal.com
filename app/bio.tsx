@@ -7,7 +7,7 @@ export function Bio() {
         Builder, marketer, anthropologist.
       </p>
       <div className="flex items-center gap-2 text-sm">
-        <span>I'm in:</span>
+        <span>I&apos;m in:</span>
         <span className="flex items-center gap-2">
           <span role="img" aria-label="Taiwan">🇹🇼</span>
           <span>Taiwan</span>
