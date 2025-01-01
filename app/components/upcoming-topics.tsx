@@ -67,7 +67,7 @@ export function UpcomingTopics() {
 
   return (
     <section className="max-w-2xl font-mono m-auto mb-10">
-      <h2 className="text-xl font-bold mb-4">Upcoming Topics</h2>
+<h2 className="text-base font-bold mb-4">Vote on upcoming blogs:</h2>
       <div className="space-y-2">
         {sortedTopics.map((topic) => (
           <div key={topic.id} className="flex items-center group">
