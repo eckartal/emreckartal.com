@@ -1,6 +1,7 @@
 "use client";
 
 import { useSelectedLayoutSegments } from "next/navigation";
+import useSWR from "swr";
 
 export type Post = {
   id: string;
@@ -42,46 +43,59 @@ function formatRelativeTime(dateStr: string) {
 
 export function Header({ posts }: { posts: Post[] }) {
   const segments = useSelectedLayoutSegments();
-  const post = posts.find(
-    post => segments && post.id === segments[segments.length - 1]
-  );
+  const postId = segments?.[segments.length - 1];
+  const post = posts.find(post => post.id === postId);
+
+  const { data: viewCounts } = useSWR("/api/view", async () => {
+    try {
+      const res = await fetch('/api/view', {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      if (!res.ok) throw new Error('Failed to fetch views');
+      return res.json();
+    } catch (error) {
+      console.error('Error fetching views:', error);
+      return {};
+    }
+  }, {
+    refreshInterval: 5000,
+    dedupingInterval: 2000,
+    revalidateOnFocus: false
+  });
 
   if (!post) return null;
 
-  const { title, date, category, views } = post;
+  const viewCount = viewCounts?.[post.id] || post.views || 0;
+  const formattedViews = new Intl.NumberFormat('en-US').format(viewCount);
 
   return (
-    <div className="mb-8">
-      <h1 className="text-3xl font-bold mb-2 dark:text-gray-100">
-        {title}
-      </h1>
-      <div className="font-mono text-xs text-gray-500 dark:text-gray-500">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <a
-              href="https://twitter.com/eckartal"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-gray-800 dark:hover:text-gray-400"
-            >
-              @eckartal
-            </a>
-            {category && (
-              <>
-                <span>•</span>
-                <span className="text-gray-700 dark:text-gray-300">
-                  {category}
-                </span>
-              </>
-            )}
-            <span>•</span>
-            <time dateTime={date} className="tabular-nums">
-              {formatPostDate(date)}
-            </time>
-          </div>
-          <div className="tabular-nums">{views} views</div>
+    <header className="mb-8">
+      <h1 className="font-bold text-3xl mb-2">{post.title}</h1>
+      <div className="flex items-center justify-between font-mono text-xs text-gray-500 dark:text-gray-500">
+        <div className="flex items-center gap-2">
+          <a
+            href="https://twitter.com/eckartal"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gray-800 dark:hover:text-gray-400"
+          >
+            @eckartal
+          </a>
+          {post.category && (
+            <>
+              <span>•</span>
+              <span className="text-gray-700 dark:text-gray-300">
+                {post.category}
+              </span>
+            </>
+          )}
+          <span>•</span>
+          <time dateTime={post.date} className="tabular-nums">
+            {formatPostDate(post.date)}
+          </time>
         </div>
+        <div className="tabular-nums">{formattedViews} views</div>
       </div>
-    </div>
+    </header>
   );
 }

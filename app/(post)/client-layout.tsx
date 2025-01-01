@@ -61,16 +61,10 @@ export function ClientLayout({
     }
   }, [postId]);
 
-  const viewCount = postId && viewCounts ? viewCounts[postId] || 0 : 0;
-  const formattedViews = new Intl.NumberFormat('en-US').format(viewCount);
-
   return (
     <MDXProvider components={components}>
       <div className="max-w-4xl mx-auto px-4 pb-28 pt-1 sm:px-6 md:px-8">
         <Header posts={posts} />
-        <div className="flex justify-between items-center mb-8">
-          <div className="text-sm text-gray-500">{formattedViews} views</div>
-        </div>
         {children}
       </div>
     </MDXProvider>
