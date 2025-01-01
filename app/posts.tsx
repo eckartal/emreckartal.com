@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
 import useSWR from "swr";
@@ -83,47 +83,63 @@ export function Posts({ posts: initialPosts }: { posts: Post[] }) {
           ))}
         </div>
 
-        <div className="flex gap-4 mb-4 text-xs">
-          <button
-            onClick={sortDate}
-            className={sort[0] === "date" ? "text-gray-700 dark:text-gray-400" : ""}
-          >
-            date
-            {sort[0] === "date" ? (sort[1] === "asc" ? "↑" : "↓") : ""}
-          </button>
-          <button
-            onClick={sortViews}
-            className={sort[0] === "views" ? "text-gray-700 dark:text-gray-400" : ""}
-          >
-            views
-            {sort[0] === "views" ? (sort[1] === "asc" ? "↑" : "↓") : ""}
-          </button>
+        <div className="border-b border-gray-200 dark:border-[#313131]">
+          <div className="flex items-center text-xs text-gray-500 dark:text-gray-600 h-9">
+            <div className="w-14">
+              <button
+                onClick={sortDate}
+                className={`text-left ${
+                  sort[0] === "date" && sort[1] !== "desc"
+                    ? "text-gray-700 dark:text-gray-400"
+                    : ""
+                }`}
+              >
+                date
+                {sort[0] === "date" && sort[1] === "asc" && "↑"}
+              </button>
+            </div>
+            <div className="w-16 ml-4">category</div>
+            <div className="grow ml-4">title</div>
+            <div className="w-12 text-right">
+              <button
+                onClick={sortViews}
+                className={sort[0] === "views" ? "text-gray-700 dark:text-gray-400" : ""}
+              >
+                views
+                {sort[0] === "views" ? (sort[1] === "asc" ? "↑" : "↓") : ""}
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="space-y-8">
+        <ul className="divide-y divide-gray-200 dark:divide-[#313131]">
           {filteredAndSortedPosts.map(post => (
-            <Link
-              key={post.id}
-              href={`/${post.id}`}
-              className="block group"
-            >
-              <div className="font-bold group-hover:text-gray-800 dark:group-hover:text-gray-300">
-                {post.title}
+            <li key={post.id} className="group hover:bg-gray-100 dark:hover:bg-[#242424]">
+              <div className="flex items-center py-3">
+                <div className="w-14 text-gray-500">
+                  {post.date.split('-')[0]}
+                </div>
+                <div className="w-16 ml-4 text-gray-500">
+                  <button
+                    onClick={() => setSelectedCategory(post.category as Category)}
+                    className="hover:text-gray-800 dark:hover:text-gray-400"
+                  >
+                    {post.category}
+                  </button>
+                </div>
+                <Link
+                  href={`/2024/${post.id}`}
+                  className="grow ml-4 text-gray-800 dark:text-gray-300 hover:underline"
+                >
+                  {post.title}
+                </Link>
+                <div className="w-12 text-right text-gray-500 tabular-nums ml-4">
+                  {post.viewsFormatted}
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
-                <time dateTime={post.date}>{post.date}</time>
-                <span>•</span>
-                <span>{post.viewsFormatted} views</span>
-                {post.category && (
-                  <>
-                    <span>•</span>
-                    <span>{post.category}</span>
-                  </>
-                )}
-              </div>
-            </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </main>
     </Suspense>
   );
