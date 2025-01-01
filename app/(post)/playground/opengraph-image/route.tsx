@@ -3,13 +3,8 @@ export const revalidate = 60;
 
 import { ImageResponse } from "next/og";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    // Get the slug from the URL
-    const url = new URL(request.url);
-    const segments = url.pathname.split('/');
-    const title = segments[segments.length - 2]; // Get the last segment before /opengraph-image
-
     return new ImageResponse(
       (
         <div
@@ -42,7 +37,7 @@ export async function GET(request: Request) {
                 lineHeight: 1.3,
               }}
             >
-              {decodeURIComponent(title).replace(/-/g, ' ')}
+              Playground
             </h1>
             <p
               style={{
