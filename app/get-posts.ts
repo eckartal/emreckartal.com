@@ -16,14 +16,7 @@ type Views = {
 };
 
 export const getPosts = async () => {
-  let allViews: Views = {};
-  try {
-    allViews = (await redis.hgetall("views")) || {};
-  } catch (error) {
-    console.error('Failed to fetch views:', error);
-    // Continue with zero views rather than crashing
-  }
-
+  const allViews: null | Views = await redis.hgetall("views");
   const posts = postsData.posts.map((post): Post => {
     const views = Number(allViews?.[post.id] ?? 0);
     return {
@@ -32,6 +25,5 @@ export const getPosts = async () => {
       viewsFormatted: commaNumber(views),
     };
   });
-
   return posts;
 };

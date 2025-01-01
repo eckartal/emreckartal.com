@@ -1,43 +1,37 @@
 import { ImageResponse } from "next/og";
-import { readFileSync } from "fs";
-import { join } from "path";
-import { NextRequest } from "next/server";
 
 export const runtime = 'edge';
 
-// fonts
-const fontsDir = join(process.cwd(), "fonts");
+// Font files need to be fetched from a URL
+const interRegular = fetch(
+  new URL('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2')
+).then(res => res.arrayBuffer());
 
-const inter300 = readFileSync(
-  join(fontsDir, "inter-latin-300-normal.woff")
-);
+const interMedium = fetch(
+  new URL('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiA.woff2')
+).then(res => res.arrayBuffer());
 
-const inter500 = readFileSync(
-  join(fontsDir, "inter-latin-500-normal.woff")
-);
-
-const inter600 = readFileSync(
-  join(fontsDir, "inter-latin-600-normal.woff")
-);
-
-const robotoMono400 = readFileSync(
-  join(fontsDir, "roboto-mono-latin-400-normal.woff")
-);
-
+// Remove NextRequest import and use simpler types
 export async function GET(
-  request: NextRequest,
-  context: { params: { slug: string } }
+  req: Request,
+  { params }: { params: { slug: string } }
 ) {
-  const { slug } = context.params;
+  const { slug } = params;
+
+  // Load the fonts
+  const [interRegularData, interMediumData] = await Promise.all([
+    interRegular,
+    interMedium
+  ]);
 
   return new ImageResponse(
     (
       <div
         tw="flex p-10 h-full w-full bg-white flex-col"
-        style={{ fontFamily: "Inter 300" }}
+        style={{ fontFamily: 'Inter' }}
       >
         <header tw="flex text-[36px] w-full">
-          <div tw="font-bold" style={{ fontFamily: "Inter 600" }}>
+          <div tw="font-bold" style={{ fontFamily: 'Inter' }}>
             Your Name
           </div>
           <div tw="grow" />
@@ -48,7 +42,7 @@ export async function GET(
           <div tw="flex">
             <div
               tw="bg-gray-100 p-8 text-7xl font-medium rounded-md text-center"
-              style={{ fontFamily: "Inter 500" }}
+              style={{ fontFamily: 'Inter' }}
             >
               {slug}
             </div>
@@ -61,20 +55,14 @@ export async function GET(
       height: 630,
       fonts: [
         {
-          name: "Inter 300",
-          data: inter300,
+          name: 'Inter',
+          data: interRegularData,
+          weight: 400,
         },
         {
-          name: "Inter 500",
-          data: inter500,
-        },
-        {
-          name: "Inter 600",
-          data: inter600,
-        },
-        {
-          name: "Roboto Mono 400",
-          data: robotoMono400,
+          name: 'Inter',
+          data: interMediumData,
+          weight: 500,
         },
       ],
     }

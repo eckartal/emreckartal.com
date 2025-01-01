@@ -1,12 +1,13 @@
 {
   "name": "emreckartal-blog",
   "license": "MIT",
-  "description": "emreckartal.com (blog)",
+  "description": "emreckarta.com (blog)",
   "dependencies": {
     "@fontsource/inter": "^4.5.15",
     "@fontsource/roboto-mono": "^4.5.10",
-    "@mdx-js/react": "^2.3.0",
-    "@next/mdx": "15.0.2",
+    "@mdx-js/loader": "^3.0.0",
+    "@mdx-js/react": "^3.0.0",
+    "@next/mdx": "^15.0.2",
     "@types/node-fetch": "^2.6.2",
     "@upstash/redis": "^1.20.1",
     "@vercel/analytics": "^1.4.1",
@@ -22,7 +23,7 @@
     "react-tweet": "^3.1.1",
     "react-wrap-balancer": "^0.2.4",
     "react-youtube": "^10.1.0",
-    "swr": "^2.3.0",
+    "swr": "^2.1.2",
     "time-ago": "^0.2.1",
     "word-wrap": "^1.2.5"
   },
