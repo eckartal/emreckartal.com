@@ -1,3 +1,6 @@
+export const runtime = 'edge';
+export const revalidate = 60;
+
 import { redis } from "@/app/redis";
 import postsData from "@/app/posts.json";
 import commaNumber from "comma-number";
@@ -18,7 +21,11 @@ export async function GET(req: NextRequest) {
         acc[key] = Number(value) || 0;
         return acc;
       }, {} as Record<string, number>);
-      return NextResponse.json(parsedViews);
+      return NextResponse.json(parsedViews, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30'
+        }
+      });
     }
 
     const post = postsData.posts.find(post => post.id === id);
@@ -32,7 +39,12 @@ export async function GET(req: NextRequest) {
             code: "UNKNOWN_POST",
           },
         },
-        { status: 400 }
+        { 
+          status: 400,
+          headers: {
+            'Cache-Control': 'no-store'
+          }
+        }
       );
     }
 
@@ -44,6 +56,10 @@ export async function GET(req: NextRequest) {
         ...post,
         views,
         viewsFormatted: commaNumber(views),
+      }, {
+        headers: {
+          'Cache-Control': 'no-store'
+        }
       });
     } else {
       const views = Number(await redis.hget("views", id)) || 0;
@@ -52,6 +68,10 @@ export async function GET(req: NextRequest) {
         ...post,
         views,
         viewsFormatted: commaNumber(views),
+      }, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30'
+        }
       });
     }
   } catch (error) {
@@ -62,6 +82,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    }, { 
+      status: 500,
+      headers: {
+        'Cache-Control': 'no-store'
+      }
+    });
   }
 }

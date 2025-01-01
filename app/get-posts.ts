@@ -11,7 +11,7 @@ export type Post = {
 export const getPosts = async () => {
   try {
     // Get view counts for all posts
-    const viewsRes = await fetch('https://emreckartal.com/api/view', { 
+    const viewsRes = await fetch('/api/view', { 
       next: { revalidate: 60 },
       headers: {
         'Cache-Control': 'no-cache'

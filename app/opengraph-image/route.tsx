@@ -2,31 +2,47 @@ export const runtime = 'edge';
 export const revalidate = 60;
 
 import { ImageResponse } from "next/og";
-import { join } from "path";
 
 export async function GET() {
   return new ImageResponse(
     (
       <div
-        tw="flex p-10 h-full w-full bg-white flex-col"
         style={{
-          fontFamily: 'Inter',
-          fontSize: 60,
-          background: 'white',
-          width: '100%',
           height: '100%',
+          width: '100%',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          backgroundColor: '#fff',
+          padding: '40px',
         }}
       >
-        <div tw="flex flex-col items-center justify-center">
-          <div tw="font-bold text-[60px] mb-4">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <h1
+            style={{
+              fontSize: '60px',
+              fontWeight: 'bold',
+              marginBottom: '20px',
+              color: '#000',
+            }}
+          >
             Emre Can Kartal
-          </div>
-          <div tw="text-[32px] text-gray-600">
+          </h1>
+          <p
+            style={{
+              fontSize: '32px',
+              color: '#666',
+            }}
+          >
             Builder, marketer, learner
-          </div>
+          </p>
         </div>
       </div>
     ),

@@ -10,6 +10,32 @@ const components = {
   // Your custom components here
 };
 
+const incrementViewCount = async (postId: string, retries = 3) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(`/api/view?id=${postId}&incr=1`, {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to increment view count: ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      if (i === retries - 1) {
+        console.error('Failed to increment view count:', error);
+      } else {
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+      }
+    }
+  }
+};
+
 export function ClientLayout({ 
   children, 
   posts 
@@ -22,13 +48,8 @@ export function ClientLayout({
 
   useEffect(() => {
     if (postId) {
-      // Increment view count
-      fetch(`/api/view?id=${postId}&incr=1`, {
-        method: 'GET',
-        headers: {
-          'Cache-Control': 'no-cache'
-        }
-      }).catch(console.error);
+      // Increment view count with retry logic
+      incrementViewCount(postId).catch(console.error);
     }
   }, [postId]);
 

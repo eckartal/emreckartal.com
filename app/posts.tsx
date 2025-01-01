@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
 import useSWR from "swr";
@@ -14,19 +14,29 @@ const fetcher = (url: string) => fetch(url).then(res => res.json());
 export function Posts({ posts: initialPosts }) {
   const [sort, setSort] = useState<SortSetting>(["date", "desc"]);
   const [selectedCategory, setSelectedCategory] = useState<Category>("all");
-  const { data: posts } = useSWR("/api/posts", fetcher, {
+
+  const { data: posts, error: postsError } = useSWR("/api/posts", fetcher, {
     fallbackData: initialPosts,
     refreshInterval: 5000,
+    dedupingInterval: 2000,
+    revalidateOnFocus: false
   });
 
-  const { data: viewCounts } = useSWR("/api/view", fetcher, {
+  const { data: viewCounts, error: viewsError } = useSWR("/api/view", fetcher, {
     refreshInterval: 5000,
+    dedupingInterval: 2000,
+    revalidateOnFocus: false
   });
+
+  useEffect(() => {
+    if (postsError) console.error('Error fetching posts:', postsError);
+    if (viewsError) console.error('Error fetching views:', viewsError);
+  }, [postsError, viewsError]);
 
   const filteredAndSortedPosts = useMemo(() => {
-    let filtered = posts;
+    let filtered = posts || initialPosts;
     if (selectedCategory !== "all") {
-      filtered = posts.filter(post => post.category === selectedCategory);
+      filtered = filtered.filter(post => post.category === selectedCategory);
     }
 
     if (viewCounts) {
@@ -45,7 +55,7 @@ export function Posts({ posts: initialPosts }) {
         return sort[1] === "desc" ? b.views - a.views : a.views - b.views;
       }
     });
-  }, [posts, sort, selectedCategory, viewCounts]);
+  }, [posts, initialPosts, sort, selectedCategory, viewCounts]);
 
   function sortDate() {
     setSort(sort => [
