@@ -22,7 +22,18 @@ export function Posts({ posts: initialPosts }) {
     revalidateOnFocus: false
   });
 
-  const { data: viewCounts, error: viewsError } = useSWR("/api/view", fetcher, {
+  const { data: viewCounts, error: viewsError } = useSWR("/api/view", async () => {
+    try {
+      const res = await fetch('/api/view', {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
+      if (!res.ok) throw new Error('Failed to fetch views');
+      return res.json();
+    } catch (error) {
+      console.error('Error fetching views:', error);
+      return {};
+    }
+  }, {
     refreshInterval: 5000,
     dedupingInterval: 2000,
     revalidateOnFocus: false
@@ -42,7 +53,8 @@ export function Posts({ posts: initialPosts }) {
     if (viewCounts) {
       filtered = filtered.map(post => ({
         ...post,
-        views: viewCounts[post.id] || post.views || 0
+        views: viewCounts[post.id] || post.views || 0,
+        viewsFormatted: new Intl.NumberFormat('en-US').format(viewCounts[post.id] || 0)
       }));
     }
 
@@ -141,7 +153,7 @@ export function Posts({ posts: initialPosts }) {
                   {post.title}
                 </Link>
                 <div className="w-12 text-right text-gray-500 tabular-nums ml-4">
-                  {post.views}
+                  {post.viewsFormatted}
                 </div>
               </div>
             </li>
