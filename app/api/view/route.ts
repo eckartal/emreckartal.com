@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { id } = await req.next().json();
+    const { id } = await req.json(); // Directly parse the JSON body
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
     }
