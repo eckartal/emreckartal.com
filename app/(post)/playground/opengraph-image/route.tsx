@@ -76,7 +76,7 @@ export async function GET() {
               color: '#000',
             }}
           >
-            Emre Can Kartal's Blog
+            Emre Can Kartal&apos;s Blog
           </h1>
         </div>
       ),
