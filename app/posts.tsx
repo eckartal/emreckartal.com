@@ -4,48 +4,29 @@ import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { Suspense } from "react";
 import useSWR from "swr";
+import type { Post } from "@/app/get-posts";
 
 type SortSetting = ["date" | "views", "desc" | "asc"];
 const CATEGORIES = ["all", "life", "product", "personal"] as const;
 type Category = typeof CATEGORIES[number];
 
-const fetcher = (url: string) => fetch(url).then(res => res.json());
-
-export function Posts({ posts: initialPosts }) {
+export function Posts({ posts: initialPosts }: { posts: Post[] }) {
   const [sort, setSort] = useState<SortSetting>(["date", "desc"]);
   const [selectedCategory, setSelectedCategory] = useState<Category>("all");
 
-  const { data: posts, error: postsError } = useSWR("/api/posts", fetcher, {
-    fallbackData: initialPosts,
-    refreshInterval: 5000,
-    dedupingInterval: 2000,
-    revalidateOnFocus: false
-  });
-
-  const { data: viewCounts, error: viewsError } = useSWR("/api/view", async () => {
-    try {
-      const res = await fetch('/api/view', {
-        headers: { 'Cache-Control': 'no-cache' }
-      });
-      if (!res.ok) throw new Error('Failed to fetch views');
-      return res.json();
-    } catch (error) {
-      console.error('Error fetching views:', error);
-      return {};
-    }
+  const { data: viewCounts } = useSWR<Record<string, number>>("/api/view", async () => {
+    const res = await fetch('/api/view', {
+      headers: { 'Cache-Control': 'no-store' }
+    });
+    if (!res.ok) throw new Error('Failed to fetch views');
+    return res.json();
   }, {
     refreshInterval: 5000,
-    dedupingInterval: 2000,
     revalidateOnFocus: false
   });
 
-  useEffect(() => {
-    if (postsError) console.error('Error fetching posts:', postsError);
-    if (viewsError) console.error('Error fetching views:', viewsError);
-  }, [postsError, viewsError]);
-
   const filteredAndSortedPosts = useMemo(() => {
-    let filtered = posts || initialPosts;
+    let filtered = [...initialPosts];
     if (selectedCategory !== "all") {
       filtered = filtered.filter(post => post.category === selectedCategory);
     }
@@ -54,11 +35,11 @@ export function Posts({ posts: initialPosts }) {
       filtered = filtered.map(post => ({
         ...post,
         views: viewCounts[post.id] || post.views || 0,
-        viewsFormatted: new Intl.NumberFormat('en-US').format(viewCounts[post.id] || 0)
+        viewsFormatted: new Intl.NumberFormat('en-US').format(viewCounts[post.id] || post.views || 0)
       }));
     }
 
-    return [...filtered].sort((a, b) => {
+    return filtered.sort((a, b) => {
       if (sort[0] === "date") {
         return sort[1] === "desc"
           ? new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -67,7 +48,7 @@ export function Posts({ posts: initialPosts }) {
         return sort[1] === "desc" ? b.views - a.views : a.views - b.views;
       }
     });
-  }, [posts, initialPosts, sort, selectedCategory, viewCounts]);
+  }, [initialPosts, sort, selectedCategory, viewCounts]);
 
   function sortDate() {
     setSort(sort => [
@@ -102,68 +83,48 @@ export function Posts({ posts: initialPosts }) {
           ))}
         </div>
 
-        <div className="border-b border-gray-200 dark:border-[#313131]">
-          <div className="flex items-center text-xs text-gray-500 dark:text-gray-600 h-9">
-            <div className="w-14">
-              <button
-                onClick={sortDate}
-                className={`text-left ${
-                  sort[0] === "date" && sort[1] !== "desc"
-                    ? "text-gray-700 dark:text-gray-400"
-                    : ""
-                }`}
-              >
-                date
-                {sort[0] === "date" && sort[1] === "asc" && "↑"}
-              </button>
-            </div>
-            <div className="w-16 ml-4">category</div>
-            <div className="grow ml-4">title</div>
-            <div className="w-12 text-right">
-              <button
-                onClick={sortViews}
-                className={sort[0] === "views" ? "text-gray-700 dark:text-gray-400" : ""}
-              >
-                views
-                {sort[0] === "views" ? (sort[1] === "asc" ? "↑" : "↓") : ""}
-              </button>
-            </div>
-          </div>
+        <div className="flex gap-4 mb-4 text-xs">
+          <button
+            onClick={sortDate}
+            className={sort[0] === "date" ? "text-gray-700 dark:text-gray-400" : ""}
+          >
+            date
+            {sort[0] === "date" ? (sort[1] === "asc" ? "↑" : "↓") : ""}
+          </button>
+          <button
+            onClick={sortViews}
+            className={sort[0] === "views" ? "text-gray-700 dark:text-gray-400" : ""}
+          >
+            views
+            {sort[0] === "views" ? (sort[1] === "asc" ? "↑" : "↓") : ""}
+          </button>
         </div>
 
-        <ul className="divide-y divide-gray-200 dark:divide-[#313131]">
+        <div className="space-y-8">
           {filteredAndSortedPosts.map(post => (
-            <li key={post.id} className="group hover:bg-gray-100 dark:hover:bg-[#242424]">
-              <div className="flex items-center py-3">
-                <div className="w-14 text-gray-500">
-                  {post.date.split('-')[0]}
-                </div>
-                <div className="w-16 ml-4 text-gray-500">
-                  <button
-                    onClick={() => setSelectedCategory(post.category as Category)}
-                    className="hover:text-gray-800 dark:hover:text-gray-400"
-                  >
-                    {post.category}
-                  </button>
-                </div>
-                <Link
-                  href={`/${new Date(post.date).getFullYear()}/${post.id}`}
-                  className="grow ml-4 text-gray-800 dark:text-gray-300 hover:underline"
-                >
-                  {post.title}
-                </Link>
-                <div className="w-12 text-right text-gray-500 tabular-nums ml-4">
-                  {post.viewsFormatted}
-                </div>
+            <Link
+              key={post.id}
+              href={`/${post.id}`}
+              className="block group"
+            >
+              <div className="font-bold group-hover:text-gray-800 dark:group-hover:text-gray-300">
+                {post.title}
               </div>
-            </li>
+              <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
+                <time dateTime={post.date}>{post.date}</time>
+                <span>•</span>
+                <span>{post.viewsFormatted} views</span>
+                {post.category && (
+                  <>
+                    <span>•</span>
+                    <span>{post.category}</span>
+                  </>
+                )}
+              </div>
+            </Link>
           ))}
-        </ul>
+        </div>
       </main>
     </Suspense>
   );
-}
-
-function getYear(date: string) {
-  return date.split("-")[0];
 }

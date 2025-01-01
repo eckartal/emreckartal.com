@@ -1,15 +1,7 @@
 "use client";
 
 import { useSelectedLayoutSegments } from "next/navigation";
-import useSWR from "swr";
-
-export type Post = {
-  id: string;
-  date: string;
-  title: string;
-  category?: string;
-  views: number;
-};
+import type { Post } from "@/app/get-posts";
 
 function formatPostDate(date: string) {
   try {
@@ -22,49 +14,13 @@ function formatPostDate(date: string) {
   }
 }
 
-function formatRelativeTime(dateStr: string) {
-  try {
-    const [year, month, day] = dateStr.split('-').map(num => parseInt(num, 10));
-    const publishDate = new Date(year, month - 1, day);
-    const currentDate = new Date('2025-01-01T17:37:34+08:00');
-    
-    const diff = currentDate.getTime() - publishDate.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
-    if (days === 0) return 'today';
-    if (days === 1) return 'yesterday';
-    if (days < 30) return `${days} days ago`;
-    if (days < 365) return `${Math.floor(days / 30)} months ago`;
-    return `${Math.floor(days / 365)} years ago`;
-  } catch {
-    return '';
-  }
-}
-
-export function Header({ posts }: { posts: Post[] }) {
-  const segments = useSelectedLayoutSegments();
-  const postId = segments?.[segments.length - 1];
-  const post = posts.find(post => post.id === postId);
-
-  const { data: viewCounts } = useSWR("/api/view", async () => {
-    try {
-      const res = await fetch('/api/view', {
-        headers: { 'Cache-Control': 'no-cache' }
-      });
-      if (!res.ok) throw new Error('Failed to fetch views');
-      return res.json();
-    } catch (error) {
-      console.error('Error fetching views:', error);
-      return {};
-    }
-  }, {
-    refreshInterval: 5000,
-    dedupingInterval: 2000,
-    revalidateOnFocus: false
-  });
-
-  if (!post) return null;
-
+export function Header({ 
+  post,
+  viewCounts
+}: { 
+  post: Post;
+  viewCounts?: Record<string, number>;
+}) {
   const viewCount = viewCounts?.[post.id] || post.views || 0;
   const formattedViews = new Intl.NumberFormat('en-US').format(viewCount);
 

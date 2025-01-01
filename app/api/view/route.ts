@@ -4,7 +4,6 @@ import commaNumber from "comma-number";
 import { NextResponse, NextRequest } from "next/server";
 
 export const runtime = 'edge';
-export const revalidate = 60;
 
 export async function GET(req: NextRequest) {
   try {
@@ -20,7 +19,7 @@ export async function GET(req: NextRequest) {
       }, {} as Record<string, number>);
       return NextResponse.json(parsedViews, {
         headers: {
-          'Cache-Control': 'no-store'
+          'Cache-Control': 'private, max-age=0, no-store'
         }
       });
     }
@@ -36,9 +35,9 @@ export async function GET(req: NextRequest) {
           },
         },
         { 
-          status: 400,
+          status: 404,
           headers: {
-            'Cache-Control': 'no-store'
+            'Cache-Control': 'private, max-age=0, no-store'
           }
         }
       );
@@ -57,7 +56,7 @@ export async function GET(req: NextRequest) {
         viewsFormatted: commaNumber(newViews),
       }, {
         headers: {
-          'Cache-Control': 'no-store'
+          'Cache-Control': 'private, max-age=0, no-store'
         }
       });
     }
@@ -69,19 +68,22 @@ export async function GET(req: NextRequest) {
       viewsFormatted: commaNumber(currentViews),
     }, {
       headers: {
-        'Cache-Control': 'no-store'
+        'Cache-Control': 'private, max-age=0, no-store'
       }
     });
 
   } catch (error) {
     console.error('Error in view API:', error);
     return NextResponse.json({ 
-      error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      error: {
+        message: 'Internal server error',
+        code: 'INTERNAL_SERVER_ERROR',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }
     }, { 
       status: 500,
       headers: {
-        'Cache-Control': 'no-store'
+        'Cache-Control': 'private, max-age=0, no-store'
       }
     });
   }
@@ -91,27 +93,34 @@ export async function POST(req: NextRequest) {
   try {
     const { id } = await req.json(); // Directly parse the JSON body
     if (!id) {
-      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+      return NextResponse.json({ 
+        error: {
+          message: 'ID is required',
+          code: 'MISSING_ID'
+        }
+      }, { 
+        status: 400,
+        headers: {
+          'Cache-Control': 'private, max-age=0, no-store'
+        }
+      });
     }
 
     const post = postsData.posts.find(post => post.id === id);
 
     if (post == null) {
       console.error('Unknown post ID:', id);
-      return NextResponse.json(
-        {
-          error: {
-            message: "Unknown post",
-            code: "UNKNOWN_POST",
-          },
+      return NextResponse.json({ 
+        error: {
+          message: "Unknown post",
+          code: "UNKNOWN_POST",
         },
-        { 
-          status: 400,
-          headers: {
-            'Cache-Control': 'no-store'
-          }
+      }, { 
+        status: 404,
+        headers: {
+          'Cache-Control': 'private, max-age=0, no-store'
         }
-      );
+      });
     }
 
     console.log('Incrementing views for post:', id);
@@ -123,18 +132,21 @@ export async function POST(req: NextRequest) {
       viewsFormatted: commaNumber(views),
     }, {
       headers: {
-        'Cache-Control': 'no-store'
+        'Cache-Control': 'private, max-age=0, no-store'
       }
     });
   } catch (error) {
     console.error('Error incrementing views:', error);
     return NextResponse.json({ 
-      error: 'Internal server error',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      error: {
+        message: 'Internal server error',
+        code: 'INTERNAL_SERVER_ERROR',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }
     }, { 
       status: 500,
       headers: {
-        'Cache-Control': 'no-store'
+        'Cache-Control': 'private, max-age=0, no-store'
       }
     });
   }

@@ -24,25 +24,23 @@ export function ClientLayout({
   // Fetch view count
   const { data: viewCounts } = useSWR<Record<string, number>>('/api/view', async () => {
     const res = await fetch('/api/view', {
-      headers: { 'Cache-Control': 'no-cache' }
+      headers: { 'Cache-Control': 'no-store' }
     });
     if (!res.ok) throw new Error('Failed to fetch views');
     return res.json();
   }, {
     refreshInterval: 5000,
-    dedupingInterval: 2000,
     revalidateOnFocus: false
   });
 
   useEffect(() => {
     const incrementViews = async () => {
       try {
-        const res = await fetch('/api/view', {
-          method: 'POST',
+        const res = await fetch(`/api/view?id=${postId}&incr=1`, {
+          method: 'GET',
           headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ slug: postId }),
+            'Cache-Control': 'no-store'
+          }
         });
 
         if (!res.ok) {
@@ -61,12 +59,12 @@ export function ClientLayout({
     }
   }, [postId]);
 
+  const post = posts.find(p => p.id === postId);
+
   return (
     <MDXProvider components={components}>
-      <div className="max-w-4xl mx-auto px-4 pb-28 pt-1 sm:px-6 md:px-8">
-        <Header posts={posts} />
-        {children}
-      </div>
+      {post && <Header post={post} viewCounts={viewCounts} />}
+      {children}
     </MDXProvider>
   );
 }
