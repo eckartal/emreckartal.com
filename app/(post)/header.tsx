@@ -11,7 +11,7 @@ const fetcher = (url: string) => fetch(url).then(res => res.json());
 export function Header({ posts }: { posts: Post[] }) {
   const segments = useSelectedLayoutSegments();
   const initialPost = posts.find(
-    post => post.id === segments[segments.length - 1]
+    post => segments && post.id === segments[segments.length - 1]
   );
   const { data: post, mutate } = useSWR(
     `/api/view?id=${initialPost?.id ?? ""}`,
