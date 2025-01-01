@@ -1,16 +1,16 @@
-import { Posts } from "./posts";
-import { getPosts } from "./get-posts";
+import { getPosts } from './get-posts';
+import { Posts } from './posts';
+import { UpcomingTopics } from './components/upcoming-topics';
 
 export const revalidate = 60;
 
-export default async function Home() {
+export default async function Page() {
   const posts = await getPosts();
+
   return (
-    <div>
-      <p className="text-gray-700 dark:text-gray-300 text-base mb-6">
-        Builder, marketer, learner.
-      </p>
+    <main>
       <Posts posts={posts} />
-    </div>
+      <UpcomingTopics />
+    </main>
   );
 }
