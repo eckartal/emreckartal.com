@@ -1,10 +1,10 @@
-import Redis from "ioredis";
+import { Redis } from "@upstash/redis";
 
-const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+  throw new Error("Missing Redis environment variables");
+}
 
-export const redisClient = redisToken
-  ? new Redis(redisToken)
-  : {
-      // Mock implementation for build-time
-      hgetall: async () => ({}),
-    };
+export const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});

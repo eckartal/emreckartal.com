@@ -1,4 +1,4 @@
-import redis from "@/app/redis";
+import { redis } from "@/app/redis";
 import postsData from "@/app/posts.json";
 import commaNumber from "comma-number";
 import { NextResponse } from "next/server";
