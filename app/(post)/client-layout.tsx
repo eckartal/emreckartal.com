@@ -22,7 +22,7 @@ export function ClientLayout({
   const postId = segments?.[segments.length - 1];
 
   // Fetch view count
-  const { data: viewCounts } = useSWR('/api/view', async () => {
+  const { data: viewCounts } = useSWR<Record<string, number>>('/api/view', async () => {
     const res = await fetch('/api/view', {
       headers: { 'Cache-Control': 'no-cache' }
     });
