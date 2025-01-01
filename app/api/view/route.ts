@@ -4,8 +4,7 @@ export const revalidate = 60;
 import { redis } from "@/app/redis";
 import postsData from "@/app/posts.json";
 import commaNumber from "comma-number";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -79,6 +78,59 @@ export async function GET(req: NextRequest) {
     // Log Redis connection details (without sensitive info)
     console.log('Redis URL configured:', !!process.env.UPSTASH_REDIS_REST_URL);
     console.log('Redis token configured:', !!process.env.UPSTASH_REDIS_REST_TOKEN);
+    return NextResponse.json({ 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { 
+      status: 500,
+      headers: {
+        'Cache-Control': 'no-store'
+      }
+    });
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { id } = await req.next().json();
+    if (!id) {
+      return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+    }
+
+    const post = postsData.posts.find(post => post.id === id);
+
+    if (post == null) {
+      console.error('Unknown post ID:', id);
+      return NextResponse.json(
+        {
+          error: {
+            message: "Unknown post",
+            code: "UNKNOWN_POST",
+          },
+        },
+        { 
+          status: 400,
+          headers: {
+            'Cache-Control': 'no-store'
+          }
+        }
+      );
+    }
+
+    console.log('Incrementing views for post:', id);
+    const views = await redis.hincrby("views", id, 1);
+    console.log('New view count:', views);
+    return NextResponse.json({
+      ...post,
+      views,
+      viewsFormatted: commaNumber(views),
+    }, {
+      headers: {
+        'Cache-Control': 'no-store'
+      }
+    });
+  } catch (error) {
+    console.error('Error incrementing views:', error);
     return NextResponse.json({ 
       error: 'Internal server error',
       details: error instanceof Error ? error.message : 'Unknown error'
