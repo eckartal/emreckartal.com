@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getPosts } from "@/app/get-posts";
+import { NextRequest } from 'next/server';
 
 export const runtime = 'edge';
 
@@ -16,12 +17,16 @@ const robotoMono = fetch(
   new URL('https://fonts.gstatic.com/s/robotomono/v22/L0xuDF4xlVMF-BfR8bXMIhJHg45mwgGEFl0_3vq_ROW4.woff2')
 ).then(res => res.arrayBuffer());
 
+type Props = {
+  params: { id: string }
+}
+
 export async function GET(
-  _req: Request,
-  props: { params: { id: string } }
+  _request: NextRequest,
+  { params }: Props
 ) {
   try {
-    const { id } = props.params;
+    const { id } = params;
 
     const posts = await getPosts();
     const post = posts.find(p => p.id === id);
