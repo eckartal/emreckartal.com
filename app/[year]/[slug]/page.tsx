@@ -11,11 +11,10 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function PostPage({
-  params,
-}: {
-  params: { year: string; slug: string };
+export default async function PostPage(props: {
+  params: Promise<{ year: string; slug: string }>;
 }) {
+  const params = await props.params;
   const posts = await getPosts();
   const post = posts.find(
     (p) => p.id === params.slug && p.date.startsWith(params.year)
@@ -25,7 +24,6 @@ export default async function PostPage({
     notFound();
   }
 
-  // Dynamic import of the MDX file
   const PostContent = await import(`../../(post)/${params.year}/${params.slug}.mdx`);
 
   return <PostContent.default />;
