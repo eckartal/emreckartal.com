@@ -14,7 +14,7 @@ export function Posts({ posts: initialPosts }: { posts: Post[] }) {
   const [sort, setSort] = useState<SortSetting>(["date", "desc"]);
   const [selectedCategory, setSelectedCategory] = useState<Category>("all");
 
-  const { data: viewCounts } = useSWR<Record<string, number>>("/api/view", async () => {
+  const { data: viewCounts, error: viewError } = useSWR<Record<string, number>>("/api/view", async () => {
     const res = await fetch('/api/view', {
       headers: { 'Cache-Control': 'no-store' }
     });
@@ -24,6 +24,10 @@ export function Posts({ posts: initialPosts }: { posts: Post[] }) {
     refreshInterval: 5000,
     revalidateOnFocus: false
   });
+
+  if (viewError) {
+    console.error('Failed to fetch view counts:', viewError);
+  }
 
   const filteredAndSortedPosts = useMemo(() => {
     let filtered = [...initialPosts];
