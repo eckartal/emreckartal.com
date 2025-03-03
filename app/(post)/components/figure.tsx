@@ -3,9 +3,11 @@ export function Figure({ wide = false, children }) {
     <div
       className={`
     text-center
+    -mx-14 sm:-mx-20 md:-mx-28
     ${
       wide
         ? `
+      -mx-18 sm:-mx-28 md:-mx-36
       bg-gray-100
       dark:bg-[#111]
       relative
@@ -21,6 +23,7 @@ export function Figure({ wide = false, children }) {
     `
         : ""
     }
+    [&_img]:rounded-[17px]
   `}
     >
       {children}

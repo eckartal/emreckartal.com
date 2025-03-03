@@ -71,12 +71,13 @@ export async function Image({
     const factor = dividedBy / 100;
 
     return (
-      <span className="my-5 flex flex-col items-center">
+      <span className="my-5 -mx-16 sm:-mx-24 md:-mx-32 flex flex-col items-center">
         <NextImage
           width={width * factor}
           height={height * factor}
           alt={alt ?? ""}
           src={src}
+          className="rounded-[17px]"
         />
 
         {alt && <Caption>{alt}</Caption>}
