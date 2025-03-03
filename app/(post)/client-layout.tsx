@@ -82,6 +82,28 @@ export function ClientLayout({
   }, [postId]);
 
   const post = posts.find(p => p.id === postId);
+  
+  // Debug information about post detection
+  console.log('Post found from ID:', post);
+  console.log('All posts:', posts);
+  
+  // If post is null, we might be in a direct mdx file - try to extract info from segments
+  if (!post && segments) {
+    const slugIndex = segments.length - 1;
+    if (slugIndex >= 0) {
+      const potentialSlug = segments[slugIndex];
+      const matchingPost = posts.find(p => p.id === potentialSlug);
+      if (matchingPost) {
+        console.log('Found post by slug in segments:', potentialSlug);
+        return (
+          <MDXProvider components={components}>
+            <Header post={matchingPost} viewCounts={viewCounts} />
+            {children}
+          </MDXProvider>
+        );
+      }
+    }
+  }
 
   return (
     <MDXProvider components={components}>

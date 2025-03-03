@@ -23,6 +23,10 @@ export function Header({
 }) {
   const viewCount = viewCounts?.[post.id] || post.views || 0;
   const formattedViews = new Intl.NumberFormat('en-US').format(viewCount);
+  
+  // Debug information
+  console.log('Rendering post header:', post);
+  console.log('View counts:', viewCounts);
 
   return (
     <header className="mb-8">

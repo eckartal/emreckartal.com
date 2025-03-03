@@ -5,6 +5,7 @@ type PostData = {
   date: string;
   title: string;
   category: string;
+  author?: string;
 };
 
 export type Post = {
@@ -14,6 +15,7 @@ export type Post = {
   views: number;
   viewsFormatted: string;
   category?: string;
+  author?: string;
 };
 
 export const getPosts = async () => {
@@ -22,6 +24,7 @@ export const getPosts = async () => {
     ...post,
     views: 0,
     viewsFormatted: '0',
-    category: post.category
+    category: post.category,
+    author: post.author || '@eckartal' // Default to @eckartal if not specified
   }));
 };
