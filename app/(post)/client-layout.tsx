@@ -26,7 +26,11 @@ export function ClientLayout({
   // Check the posts array to find which post matches the current URL segments
   const currentPost = posts.find(post => {
     const year = post.date.split('-')[0];
-    return segments && segments.includes(year) && segments.includes(post.id);
+    // More robust check - both by ID in the URL or by checking if it's in the segments array
+    return segments && (
+      segments.includes(post.id) || 
+      (segments.includes(year) && segments[segments.indexOf(year) + 1] === post.id)
+    );
   });
   
   // Use the post ID from the found post
@@ -34,6 +38,7 @@ export function ClientLayout({
   
   console.log('Current URL segments:', segments);
   console.log('Detected post ID:', postId);
+  console.log('Current post:', currentPost);
 
   // Fetch view count
   const { data: viewCounts } = useSWR<Record<string, number>>('/api/view', async () => {

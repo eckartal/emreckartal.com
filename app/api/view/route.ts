@@ -10,23 +10,37 @@ export async function GET(req: NextRequest) {
     const url = new URL(req.url);
     const id = url.searchParams.get("id") ?? null;
 
+    console.log('View API called for ID:', id);
+
     // Return all views if no ID is provided
     if (id === null) {
-      const views = await redis.hgetall("views");
-      const parsedViews = Object.entries(views || {}).reduce((acc, [key, value]) => {
-        acc[key] = Number(value) || 0;
-        return acc;
-      }, {} as Record<string, number>);
-      return NextResponse.json(parsedViews, {
-        headers: {
-          'Cache-Control': 'private, max-age=0, no-store'
-        }
-      });
+      try {
+        const views = await redis.hgetall("views");
+        console.log('Fetched all views from Redis:', views);
+        const parsedViews = Object.entries(views || {}).reduce((acc, [key, value]) => {
+          acc[key] = Number(value) || 0;
+          return acc;
+        }, {} as Record<string, number>);
+        return NextResponse.json(parsedViews, {
+          headers: {
+            'Cache-Control': 'private, max-age=0, no-store'
+          }
+        });
+      } catch (redisError) {
+        console.error('Redis error fetching all views:', redisError);
+        // Return empty views if Redis fails
+        return NextResponse.json({}, {
+          headers: {
+            'Cache-Control': 'private, max-age=0, no-store'
+          }
+        });
+      }
     }
 
     const post = postsData.posts.find(post => post.id === id);
 
     if (!post) {
+      console.error('Unknown post ID requested:', id);
       return NextResponse.json(
         {
           error: {
@@ -44,21 +58,42 @@ export async function GET(req: NextRequest) {
     }
 
     // Always get the current view count first
-    const currentViews = Number(await redis.hget("views", id)) || 0;
+    let currentViews = 0;
+    try {
+      currentViews = Number(await redis.hget("views", id)) || 0;
+      console.log('Current views for post', id, ':', currentViews);
+    } catch (redisError) {
+      console.error('Redis error getting view count for', id, ':', redisError);
+    }
 
     if (url.searchParams.get("incr") != null) {
       // Increment the view count
-      const newViews = await redis.hincrby("views", id, 1);
-      
-      return NextResponse.json({
-        ...post,
-        views: newViews,
-        viewsFormatted: commaNumber(newViews),
-      }, {
-        headers: {
-          'Cache-Control': 'private, max-age=0, no-store'
-        }
-      });
+      try {
+        const newViews = await redis.hincrby("views", id, 1);
+        console.log('Incremented views for post', id, 'to', newViews);
+        
+        return NextResponse.json({
+          ...post,
+          views: newViews,
+          viewsFormatted: commaNumber(newViews),
+        }, {
+          headers: {
+            'Cache-Control': 'private, max-age=0, no-store'
+          }
+        });
+      } catch (redisError) {
+        console.error('Redis error incrementing views for', id, ':', redisError);
+        // If Redis fails, just return the current views
+        return NextResponse.json({
+          ...post,
+          views: currentViews,
+          viewsFormatted: commaNumber(currentViews),
+        }, {
+          headers: {
+            'Cache-Control': 'private, max-age=0, no-store'
+          }
+        });
+      }
     }
 
     // Return current views without incrementing
@@ -71,7 +106,6 @@ export async function GET(req: NextRequest) {
         'Cache-Control': 'private, max-age=0, no-store'
       }
     });
-
   } catch (error) {
     console.error('Error in view API:', error);
     return NextResponse.json({ 
