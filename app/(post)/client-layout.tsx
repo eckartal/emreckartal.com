@@ -26,7 +26,7 @@ export function ClientLayout({
   // Check the posts array to find which post matches the current URL segments
   const currentPost = posts.find(post => {
     const year = post.date.split('-')[0];
-    return segments.includes(year) && segments.includes(post.id);
+    return segments && segments.includes(year) && segments.includes(post.id);
   });
   
   // Use the post ID from the found post
