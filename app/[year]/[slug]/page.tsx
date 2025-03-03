@@ -24,6 +24,7 @@ export default async function PostPage(props: {
     notFound();
   }
 
+  // Import the post content - simplify to use direct import of the .mdx file
   const PostContent = await import(`../../(post)/${params.year}/${params.slug}.mdx`);
 
   return <PostContent.default />;

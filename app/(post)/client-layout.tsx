@@ -19,7 +19,21 @@ export function ClientLayout({
   posts: Post[];
 }) {
   const segments = useSelectedLayoutSegments();
-  const postId = segments?.[segments.length - 1];
+  
+  // Extract post ID from segments
+  let postId;
+  
+  // Check the posts array to find which post matches the current URL segments
+  const currentPost = posts.find(post => {
+    const year = post.date.split('-')[0];
+    return segments.includes(year) && segments.includes(post.id);
+  });
+  
+  // Use the post ID from the found post
+  postId = currentPost?.id;
+  
+  console.log('Current URL segments:', segments);
+  console.log('Detected post ID:', postId);
 
   // Fetch view count
   const { data: viewCounts } = useSWR<Record<string, number>>('/api/view', async () => {
@@ -36,6 +50,7 @@ export function ClientLayout({
   useEffect(() => {
     const incrementViews = async () => {
       try {
+        console.log('Incrementing views for post:', postId);
         const res = await fetch(`/api/view?id=${postId}&incr=1`, {
           method: 'GET',
           headers: {
@@ -44,6 +59,8 @@ export function ClientLayout({
         });
 
         if (!res.ok) {
+          const error = await res.json();
+          console.error('View increment response error:', error);
           throw new Error('Failed to increment views');
         }
 
