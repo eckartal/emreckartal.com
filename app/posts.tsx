@@ -128,7 +128,7 @@ export function Posts({ posts: initialPosts }: { posts: Post[] }) {
                   </button>
                 </div>
                 <Link
-                  href={`/2024/${post.id}`}
+                  href={`/${post.date.split('-')[0]}/${post.id}`}
                   className="grow ml-4 text-gray-800 dark:text-gray-300 hover:underline"
                 >
                   {post.title}
