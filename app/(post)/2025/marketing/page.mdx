@@ -1,55 +1,19 @@
 export const metadata = {
-  title: 'Founding marketing for busy folks',
+  title: 'Founding marketing for busy founders',
   date: '2025-03-03',
   category: 'product',
   author: '@eckartal',
   openGraph: {
-    title: 'Founding marketing for busy folks',
+    title: 'Founding marketing for busy founders',
     description: 'Marketing is creating an impression in some people\'s minds through clear statements. It starts with positioning, continues with messaging, and ends up shaping the sales narrative, social sharing, and so on. These descriptions are a bit vague, and marketers love to use fancy words to make things sound cool and complicated, just like engineers do. The most critical aspect is to explain the concepts as concisely and clearly as possible. I\'m trying to do this for marketing in this post.',
     date: '2025-03-03',
-    images: [{ url: '/images/marketing-101' }],
-    url: 'https://emreckartal.com/2025/marketing',
-    type: 'article'
-  },
-  alternates: {
-    canonical: 'https://emreckartal.com/2025/marketing'
+    images: [{ url: '/images/marketing-101' }]
   }
 }
 
 export default function Page({ children }) {
   return (
     <article className="prose dark:prose-invert">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            'headline': 'Founding marketing for busy folks',
-            'description': 'Marketing is creating an impression in some people\'s minds through clear statements.',
-            'image': 'https://emreckartal.com/images/marketing-101',
-            'datePublished': '2025-03-03',
-            'dateModified': '2025-03-03',
-            'author': {
-              '@type': 'Person',
-              'name': 'Emre Can Kartal',
-              'url': 'https://emreckartal.com'
-            },
-            'publisher': {
-              '@type': 'Person',
-              'name': 'Emre Can Kartal',
-              'logo': {
-                '@type': 'ImageObject',
-                'url': 'https://emreckartal.com/images/eckartal-profile.jpg'
-              }
-            },
-            'mainEntityOfPage': {
-              '@type': 'WebPage',
-              '@id': 'https://emreckartal.com/2025/marketing'
-            }
-          })
-        }}
-      />
       {children}
     </article>
   );
@@ -63,7 +27,7 @@ I'm writing this blog to explain how I see marketing as a marketer who has worke
 
 ![marketing-101](/images/marketing-101.jpg)
 
-## Communication
+### Communication
 
 Basically, communication starts with what you have, what you plan to have, and who this is for. It's entirely possible to draw a marketing plan by answering these questions. We can make these questions deeper and more complicated, but again, this is a concise post.
 
@@ -77,16 +41,16 @@ You should know:
 
 The only thing that should be discussed is how your target audience talks about the problems you're solving or the conditions you're improving. This consists of understanding your audience.
 
-If you asked me what the most problematic audience definitions to kickstart marketing are, I'd list:
+If you'd asked me what the most problematic audience definitions to kickstart marketing are, I'd list:
 - My audience is everyone
 - All people living in the USA
 - All small business owners
 
-You know your product, you've identified your audience. Congratulations, you've finalized the first part.
+Remember, you're trying to define your early users and customers. Your early adopters often have different motivations than mainstream customers. No need to overthink it, just find the guys that you can define who they are and where they're hanging out.
 
 ![marketing-flow](/images/marketing-flow.jpg)
 
-## Distribution
+### Distribution
 
 Distribution is one of the challenging parts of marketing. Presumably, the product details and audience settings are parts everyone has some ideas about, but distribution plays a crucial role in seeing if your product/audience definitions are valid or not.
 
@@ -108,6 +72,6 @@ Not all channels are equal. In fact, for most startups, one distribution channel
 
 The early authentic relationships you build won't scale, and that's exactly the point. Do things by hand that don't scale first, then systematize only after you've learned what works. Join the communities, answer questions personally, follow up individually. This seems inefficient, but it creates the foundation for word-of-mouth growth that no ad budget can buy. Once you understand exactly what resonates, then you can think about automation and scale.
 
-## The single metric focus
+### The single metric focus
 
-All love numbers, especially for numbers related to the margin. But most marketing metrics are just noise for early-stage products. One metric that actually matters for your specific stage would be great to grow the companies without dealing with unneccassary actions. If you're pre-product-market fit, this might be weekly retention. If you're scaling, it might be customer acquisition cost. Whatever it is, rally your entire team around this number. When engineers and marketers track the same metric, they suddenly start speaking the same language. See how cool it is to talk these terms.
+All love numbers, especially for numbers related to the margin. But most marketing metrics are just noise for early-stage products. One metric that actually matters for your specific stage would be great to grow the companies without dealing with unneccassary actions. If you're pre-product-market fit, this might be weekly retention If you're scaling, it might be customer acquisition cost. Whatever it is, rally your entire team around this number. When engineers and marketers track the same metric, they suddenly start speaking the same language. See how cool it is to talk these terms.
